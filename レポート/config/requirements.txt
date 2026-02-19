@@ -1,0 +1,37 @@
+# Shopify注文データエクスポートシステム用依存関係
+
+# HTTPリクエスト用
+requests>=2.31.0
+
+# 環境変数管理用
+python-dotenv>=1.0.0
+
+# Google API認証用
+google-auth>=2.23.0
+google-auth-oauthlib>=1.1.0
+
+# Google APIクライアント用
+google-api-python-client>=2.100.0
+
+# スケジュール実行用
+schedule>=1.2.0
+
+# 日付処理用（標準ライブラリに含まれているため不要）
+# datetime
+# timedelta
+
+# CSV処理用（標準ライブラリに含まれているため不要）
+# csv
+
+# JSON処理用（標準ライブラリに含まれているため不要）
+# json
+
+# ログ処理用（標準ライブラリに含まれているため不要）
+# logging
+
+# ファイル・ディレクトリ操作用（標準ライブラリに含まれているため不要）
+# os
+# sys
+# pickle
+# time
+

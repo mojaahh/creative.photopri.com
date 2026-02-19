@@ -1,0 +1,32 @@
+修正された新規顧客数計算関数（TETTE対応版）
+
+=LET(
+  current_month, A2,
+  current_service, B2,
+  target_month_start, current_month,
+  target_month_end, EOMONTH(current_month, 0),
+
+  customers_this_month, FILTER(
+    CustomerDB!D:D,
+    CustomerDB!U:U = TRUE,
+    CustomerDB!V:V = current_service
+  ),
+
+  IFERROR(COUNTA(UNIQUE(customers_this_month)), 0)
+)
+
+この関数は、ServiceDataシートのS列に配置します。
+
+各ストアのサービス名の対応：
+- P: Photopri
+- E: E1 Print
+- A: Artgraph  
+- Q: Qoo
+- T: TETTE
+- C: Copy Center Gallery
+
+CustomerDBの列の説明：
+- D列: 顧客ID
+- U列: 新規顧客フラグ（TRUE/FALSE）
+- V列: サービス名（P, E, A, Q, T, C）
+

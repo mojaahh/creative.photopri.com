@@ -1,0 +1,68 @@
+修正されたServiceData用のQUERY関数（#付きのまま集計版）
+
+=QUERY(
+{ARRAYFORMULA(EOMONTH(db!P2:P,-1)+1),
+ARRAYFORMULA(IFERROR(REGEXEXTRACT(db!A2:A,"#([PEAQTC])"))),
+db!L2:L,
+db!A2:A,
+db!Q2:Q,
+db!C2:C},
+"SELECT Col1, Col2, SUM(Col3), COUNT(Col4), SUM(Col5)
+WHERE Col1 IS NOT NULL
+AND Col2 IS NOT NULL
+AND Col6 IS NOT NULL
+AND Col6 <> 'VOIDED'
+AND Col6 <> 'REFUNDED'
+AND Col6 <> 'EXPIRED'
+AND Col6 <> 'PENDING'
+AND Col6 <> 'PARTIALLY_PAID'
+AND Col6 <> ''
+AND Col3 IS NOT NULL AND Col3 >= 0
+AND Col5 IS NOT NULL AND Col5 >= 0
+GROUP BY Col1, Col2
+ORDER BY Col1 DESC, Col2 ASC
+LABEL Col1 '年月', Col2 'サービス', SUM(Col3) '売上', COUNT(Col4) '注文件数', SUM(Col5) '注文点数'",
+1
+)
+
+変更点：
+1. REGEXEXTRACTパターンを "#([PEAQTC])" に変更
+   - これにより、#T → T, #P → P, #E → E のように抽出される
+   - しかし、#付きのまま表示したい場合は、以下のように修正：
+
+#付きのまま集計する場合の修正版：
+
+=QUERY(
+{ARRAYFORMULA(EOMONTH(db!P2:P,-1)+1),
+ARRAYFORMULA(IFERROR(REGEXEXTRACT(db!A2:A,"#([PEAQTC])"))),
+db!L2:L,
+db!A2:A,
+db!Q2:Q,
+db!C2:C},
+"SELECT Col1, '#' || Col2, SUM(Col3), COUNT(Col4), SUM(Col5)
+WHERE Col1 IS NOT NULL
+AND Col2 IS NOT NULL
+AND Col6 IS NOT NULL
+AND Col6 <> 'VOIDED'
+AND Col6 <> 'REFUNDED'
+AND Col6 <> 'EXPIRED'
+AND Col6 <> 'PENDING'
+AND Col6 <> 'PARTIALLY_PAID'
+AND Col6 <> ''
+AND Col3 IS NOT NULL AND Col3 >= 0
+AND Col5 IS NOT NULL AND Col5 >= 0
+GROUP BY Col1, Col2
+ORDER BY Col1 DESC, Col2 ASC
+LABEL Col1 '年月', '#' || Col2 'サービス', SUM(Col3) '売上', COUNT(Col4) '注文件数', SUM(Col5) '注文点数'",
+1
+)
+
+この修正により：
+- #T → #T
+- #P → #P  
+- #E → #E
+- #A → #A
+- #Q → #Q
+- #C → #C
+
+のように、#付きのまま集計されます。

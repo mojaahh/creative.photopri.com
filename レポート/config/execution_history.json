@@ -1,0 +1,152 @@
+[
+  {
+    "timestamp": "2025-09-03T18:00:55.038113",
+    "mode": "initial",
+    "start_date": "2019-01-01",
+    "end_date": "2025-09-03",
+    "total_orders": 34399,
+    "filename": "orders_initial_2019-01-01_to_2025-09-03_20250903_180054.csv",
+    "active_stores": [
+      "artgraph",
+      "e1print",
+      "photopri",
+      "qoo",
+      "copycentergallery"
+    ]
+  },
+  {
+    "timestamp": "2025-09-03T18:21:20.639722",
+    "mode": "initial",
+    "start_date": "2019-01-01",
+    "end_date": "2025-09-03",
+    "total_orders": 34399,
+    "filename": "orders_initial_2019-01-01_to_2025-09-03_20250903_182120.csv",
+    "active_stores": [
+      "artgraph",
+      "e1print",
+      "photopri",
+      "qoo",
+      "copycentergallery"
+    ]
+  },
+  {
+    "timestamp": "2025-09-03T18:47:13.137374",
+    "mode": "initial",
+    "start_date": "2019-01-01",
+    "end_date": "2025-09-03",
+    "total_orders": 34399,
+    "filename": "orders_initial_2019-01-01_to_2025-09-03_20250903_184713.csv",
+    "active_stores": [
+      "artgraph",
+      "e1print",
+      "photopri",
+      "qoo",
+      "copycentergallery"
+    ]
+  },
+  {
+    "timestamp": "2025-09-05T15:21:08.532321",
+    "mode": "initial",
+    "start_date": "2019-01-01",
+    "end_date": "2025-09-05",
+    "total_orders": 34471,
+    "filename": "orders_initial_2019-01-01_to_2025-09-05_20250905_152108.csv",
+    "active_stores": [
+      "artgraph",
+      "e1print",
+      "photopri",
+      "qoo",
+      "copycentergallery"
+    ]
+  },
+  {
+    "timestamp": "2025-09-05T15:35:26.577599",
+    "mode": "initial",
+    "start_date": "2019-01-01",
+    "end_date": "2025-09-05",
+    "total_orders": 34472,
+    "filename": "orders_initial_2019-01-01_to_2025-09-05_20250905_153526.csv",
+    "active_stores": [
+      "artgraph",
+      "e1print",
+      "photopri",
+      "qoo",
+      "copycentergallery"
+    ]
+  },
+  {
+    "timestamp": "2025-09-05T15:54:49.249123",
+    "mode": "initial",
+    "start_date": "2019-01-01",
+    "end_date": "2025-09-05",
+    "total_orders": 4463,
+    "filename": "orders_initial_2019-01-01_to_2025-09-05_20250905_155449.csv",
+    "active_stores": [
+      "tette"
+    ]
+  },
+  {
+    "timestamp": "2025-09-06T18:50:25.915295",
+    "mode": "initial",
+    "start_date": "2019-01-01",
+    "end_date": "2025-09-06",
+    "total_orders": 11475,
+    "filename": "orders_initial_2019-01-01_to_2025-09-06_20250906_185025.csv",
+    "active_stores": [
+      "artgraph",
+      "e1print",
+      "photopri",
+      "qoo",
+      "copycentergallery",
+      "tette"
+    ]
+  },
+  {
+    "timestamp": "2025-09-06T20:04:35.118092",
+    "mode": "initial",
+    "start_date": "2019-01-01",
+    "end_date": "2025-09-06",
+    "total_orders": 38980,
+    "filename": "orders_initial_2019-01-01_to_2025-09-06_20250906_200434.csv",
+    "active_stores": [
+      "artgraph",
+      "e1print",
+      "photopri",
+      "qoo",
+      "copycentergallery",
+      "tette"
+    ]
+  },
+  {
+    "timestamp": "2025-09-06T20:20:01.851629",
+    "mode": "initial",
+    "start_date": "2019-01-01",
+    "end_date": "2025-09-06",
+    "total_orders": 38981,
+    "filename": "orders_initial_2019-01-01_to_2025-09-06_20250906_202001.csv",
+    "active_stores": [
+      "artgraph",
+      "e1print",
+      "photopri",
+      "qoo",
+      "copycentergallery",
+      "tette"
+    ]
+  },
+  {
+    "timestamp": "2025-09-08T16:19:58.199886",
+    "mode": "update",
+    "start_date": "2025-07-10",
+    "end_date": "2025-09-08",
+    "total_orders": 2297,
+    "filename": "orders_update_2025-07-10_to_2025-09-08_20250908_161958.csv",
+    "active_stores": [
+      "artgraph",
+      "e1print",
+      "photopri",
+      "qoo",
+      "copycentergallery",
+      "tette"
+    ]
+  }
+]

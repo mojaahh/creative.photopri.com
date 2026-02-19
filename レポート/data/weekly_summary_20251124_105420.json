@@ -1,0 +1,56 @@
+{
+  "monthly_targets": {
+    "#A": 1389534.0,
+    "#P": 9217509.0,
+    "#E": 967674.0,
+    "#Q": 200000.0,
+    "total": 11774717.0
+  },
+  "monthly_sales": {
+    "#A": {
+      "amount": 1106680.0,
+      "orders": 102
+    },
+    "#P": {
+      "amount": 6313910.0,
+      "orders": 495
+    },
+    "#E": {
+      "amount": 419496.0,
+      "orders": 43
+    },
+    "#Q": {
+      "amount": 100911.0,
+      "orders": 14
+    },
+    "total": {
+      "amount": 7940997.0,
+      "orders": 654
+    }
+  },
+  "weekend_orders": {
+    "#A": {
+      "amount": 118172.0,
+      "orders": 16
+    },
+    "#P": {
+      "amount": 362973.0,
+      "orders": 44
+    },
+    "#E": {
+      "amount": 9780.0,
+      "orders": 3
+    },
+    "#Q": {
+      "amount": 25440.0,
+      "orders": 3
+    },
+    "total": {
+      "amount": 516365.0,
+      "orders": 66
+    }
+  },
+  "generated_at": "2025-11-24T10:54:06.265192",
+  "month": 11,
+  "year": 2025
+}

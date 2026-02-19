@@ -1,0 +1,30 @@
+# Shopify API設定（5ストア対応）
+ARTGRAPH_SHOP = "artgraph-shop.myshopify.com"
+ARTGRAPH_TOKEN = "your-artgraph-access-token"
+
+E1_SHOP = "e1print.myshopify.com"
+E1_TOKEN = "your-e1print-access-token"
+
+PHOTOPRI_SHOP = "photopri.myshopify.com"
+PHOTOPRI_TOKEN = "your-photopri-access-token"
+
+QOO_SHOP = "aad872-2.myshopify.com"
+QOO_TOKEN = "your-qoo-access-token"
+
+COPYCENTERGALLERY_SHOP = "86717f-2.myshopify.com"
+COPYCENTERGALLERY_TOKEN = "your-copycentergallery-access-token"
+
+# API設定
+API_VERSION = "2025-07"
+
+# Google Sheets API設定
+GOOGLE_SPREADSHEET_ID = "1S_IbeV2syeauIvP5w0uAhBs3t3MaNoczrXLpBMCh54g"
+
+# 注文データエクスポート設定
+DEFAULT_MONTHS_AGO = "1"
+EXPORT_BATCH_SIZE = "250"
+API_RATE_LIMIT_DELAY = "1"
+
+# ログ設定
+LOG_LEVEL = "INFO"
+LOG_ENCODING = "utf-8"

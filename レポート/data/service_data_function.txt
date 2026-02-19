@@ -1,0 +1,27 @@
+ServiceDataシートのS列（新規顧客数）用の関数：
+
+=LET(
+  current_month, A2,
+  current_service, B2,
+  target_month_start, current_month,
+  target_month_end, EOMONTH(current_month, 0),
+  
+  // CustomerDBから該当月の新規顧客を取得
+  // 列D: Email, 列U: Is New Customer, 列V: Store Key
+  customers_this_month, FILTER(
+    CustomerDB!D:D,
+    CustomerDB!U:U = TRUE,
+    CustomerDB!V:V = current_service
+  ),
+  
+  // 新規顧客数をカウント
+  IFERROR(COUNTA(UNIQUE(customers_this_month)), 0)
+)
+
+注意：
+- CustomerDBの列構造に基づいています
+- 列D: Email
+- 列U: Is New Customer (TRUE/FALSE)
+- 列V: Store Key (例: ARTGRAPH_SHOP, E1_SHOP, etc.)
+- サービスコードはB列の値と一致する必要があります（例: #P, #E, #A, #Q, #T）
+

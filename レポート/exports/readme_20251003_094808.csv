@@ -1,0 +1,285 @@
+﻿# Shopify データ分析システム README
+
+## 📋 目次
+1. システム概要
+2. シート構成
+3. 注文データ（Orders）
+4. 顧客データベース（Customer DB）
+5. ユーザー分析（上位100名）
+6. サービス別分析
+7. 離脱者アラート
+8. 離脱者定義と判定基準
+9. 使用方法
+10. よくある質問
+
+## 1. システム概要
+このシステムは、Shopifyの複数ストアから注文データと顧客データを取得し、
+包括的な分析とアラート機能を提供します。
+
+### 対象ストア
+• Photopri (photopri.myshopify.com)
+• Artgraph (artgraph-shop.myshopify.com)
+• E1 Print (e1print.myshopify.com)
+• Qoo (aad872-2.myshopify.com)
+• TETTE (tette-flower.myshopify.com)
+
+## 2. シート構成
+| シート名,説明,更新頻度
+|---------|------|--------
+| Orders,全注文データ,週次
+| Customer DB,全顧客データベース,週次
+| ユーザー分析,上位100名顧客分析,週次
+| Photopri分析,Photopri上位50名分析,週次
+| Artgraph分析,Artgraph上位50名分析,週次
+| E1 Print分析,E1 Print上位50名分析,週次
+| Qoo分析,Qoo上位50名分析,週次
+| TETTE分析,TETTE上位50名分析,週次
+| 離脱者アラート,離脱リスク顧客リスト,週次
+
+## 3. 注文データ（Orders）
+### 主要項目
+| 項目名,説明,例
+|--------|------|-----
+| Name,注文番号,#P12345
+| Email,顧客メールアドレス,customer@example.com
+| Created at,注文日時,2025/01/15 14:30:00
+| Total,注文金額,"¥15,000"
+| Vendor,ストア名,Photopri
+| Lineitem quantity,商品数量,3
+| Lineitem name,商品名,フォトブック A4
+| Lineitem price,単価,"¥5,000"
+| Lineitem total,小計,"¥15,000"
+
+## 4. 顧客データベース（Customer DB）
+### 基本情報
+| 項目名,説明,例
+|--------|------|-----
+| Customer ID,Shopify顧客ID,1234567890
+| First Name,名,太郎
+| Last Name,姓,田中
+| Email,メールアドレス,tanaka@example.com
+| Phone,電話番号,090-1234-5678
+| Total Spent,総購入金額,"¥150,000"
+| Total Orders,総注文数,25
+
+### 住所情報
+| 項目名,説明,例
+|--------|------|-----
+| Default Address Address1,住所1,東京都渋谷区1-1-1
+| Default Address City,市区町村,渋谷区
+| Default Address Province Code,都道府県コード,JP-13
+| Default Address Country Code,国コード,JP
+| Default Address Zip,郵便番号,150-0001
+
+### 統合サービス情報
+| 項目名,説明,例
+|--------|------|-----
+| Total Service Orders,全サービス総注文数,25
+| Total Service Amount,全サービス総購入金額,"¥150,000"
+| First Order Date,初回注文日,2023/01/15 10:30:00
+| Last Order Date,最終注文日,2025/01/15 14:30:00
+| Average Order Interval (Days),平均注文間隔（日）,30.5
+| Average Order Value,平均注文単価,"¥6,000"
+
+### 最終注文情報
+| 項目名,説明,例
+|--------|------|-----
+| Last Order ID,最終注文ID,1234567890
+| Last Order Name,最終注文番号,#P12345
+| Last Order Status,最終注文ステータス,fulfilled
+| Last Order Fulfillment Status,最終注文配送ステータス,fulfilled
+| Last Order Amount,最終注文金額,"¥15,000"
+
+### 分析フィールド
+| 項目名,説明,例
+|--------|------|-----
+| Is New Customer,新規顧客フラグ,False
+| Store Key,ストアキー,PHOTOPRI_SHOP
+| Store Name,ストア名,Photopri
+| Store URL,ストアURL,https://photopri.myshopify.com
+
+## 5. ユーザー分析（上位100名）
+### 対象
+• 過去3年間に最終注文がある顧客のみ
+• 総購入金額上位100名
+
+### 分析指標
+| 項目名,説明,計算方法
+|--------|------|--------
+| Recency (Days),最新購入日からの経過日数,現在日 - 最終注文日
+| Frequency,総注文数,Total Service Orders
+| Monetary,総購入金額,Total Service Amount
+| Customer Lifespan (Days),顧客継続期間,最終注文日 - 初回注文日
+| Churn Risk Score,離脱リスクスコア,0-100（高いほどリスク大）
+| Customer Value Score,顧客価値スコア,金額×頻度×期間の複合指標
+| Engagement Score,エンゲージメントスコア,注文間隔の短さを評価
+| Orders per Month,月間注文数,総注文数 ÷ (継続期間÷30.4)
+| Days Since Last Order,最終注文からの経過日数,Recency (Days)と同じ
+
+### 判定フラグ
+| 項目名,説明,判定基準
+|--------|------|--------
+| Is High Value,高額顧客判定,総購入金額10万円以上
+| Is Frequent Buyer,頻繁購入者判定,総注文数10回以上
+| Is At Risk,離脱リスク判定,Churn Risk Score70%以上
+| Customer Type,顧客タイプ分類,VIP顧客、頻繁購入者、新規顧客、一般顧客
+
+## 6. サービス別分析
+### 対象
+• 各ストア（サービス）ごとの上位50名
+• サービス固有の分析指標を追加
+
+### サービス固有指標
+| 項目名,説明,例
+|--------|------|-----
+| {サービス名} Recency (Days),サービス内最新購入日からの経過日数,30
+| {サービス名} Frequency,サービス内総注文数,15
+| {サービス名} Monetary,サービス内総購入金額,"¥75,000"
+| {サービス名} Rank,サービス内ランキング,5
+| {サービス名} Lifespan (Days),サービス利用期間,365
+| {サービス名} Growth,成長度,急成長、順調成長、緩やか成長、低成長
+| {サービス名} Dependency (%),サービス依存度,100.0
+| {サービス名} Churn Risk,サービス内離脱リスク,25
+| {サービス名} Value Score,サービス価値スコア,85.5
+| {サービス名} Monthly Frequency,月間購入頻度,1.2
+| {サービス名} Avg Purchase Interval,平均購入間隔,30.5
+| {サービス名} Customer Type,サービス内顧客タイプ,Photopri VIP顧客
+| {サービス名} Predicted LTV,予測サービスLTV,"¥200,000"
+| {サービス名} Satisfaction Score,サービス満足度スコア,8.5
+
+## 7. 離脱者アラート
+### 対象カテゴリ
+| カテゴリ,条件,リスクスコア閾値
+|--------|------|--------
+| high_value,10万円以上、5回以上注文,60点以上
+| medium_value,5万円以上、3回以上注文,50点以上
+| frequent_buyer,3万円以上、10回以上注文,40点以上
+
+### アラートレベル
+| レベル,リスクスコア,対応優先度
+|--------|--------|--------
+| 緊急,80点以上,即座に対応
+| 高,60-79点,1週間以内に対応
+| 中,40-59点,2週間以内に対応
+| 低,40点未満,1ヶ月以内に対応
+
+### 推奨アクション
+| カテゴリ,推奨アクション
+|--------|--------
+| high_value,VIP顧客向け特別キャンペーン、個別フォローアップ
+| medium_value,リターンキャンペーン、メール配信
+| frequent_buyer,頻繁購入者向け特典、購入促進メール
+
+## 8. 離脱者定義と判定基準
+### 離脱者とは
+過去に一定以上の購入実績があり、現在離脱のリスクが高いと判定された顧客のことです。
+
+### 判定基準（動的リスクスコアベース）
+#### 1. 基本条件
+• 各カテゴリの最低購入金額・注文数を満たす
+• リスクスコアが閾値を超える
+
+#### 2. リスクスコア計算
+##### 動的閾値（平均注文間隔ベース）
+• 平均注文間隔×1.5倍を超えた時点でリスク開始
+• 平均注文間隔×2.25倍で中リスク（+30点）
+• 平均注文間隔×3倍で高リスク（+50点）
+
+##### 固定閾値（平均注文間隔不明時）
+• 60日超：+5点
+• 90日超：+15点
+• 180日超：+30点
+• 365日超：+50点
+
+##### リスク軽減要因
+• 10回以上注文：-10点
+• 2年以上の長期間顧客：-15点
+• 高額顧客（20万円以上）：+10点
+• 中額顧客（10万円以上）：+5点
+
+### 例：長期間スパン顧客への配慮
+平均注文間隔180日の顧客の場合：
+• 270日（180×1.5）でリスク開始
+• 405日（180×2.25）で中リスク
+• 540日（180×3）で高リスク
+従来の固定120日閾値から大幅に改善
+
+## 9. 使用方法
+### 統合実行（推奨）
+```bash
+cd /Users/photopriinc/Documents/coding/Shopify\ bulk\ task/レポート
+python3 managers/integrated_data_manager.py weekly
+```
+
+### 個別実行
+```bash
+# 注文データのみ
+python3 managers/integrated_data_manager.py orders
+
+# 顧客データのみ
+python3 managers/integrated_data_manager.py customers
+
+# ユーザー分析のみ
+python3 managers/integrated_data_manager.py user_analysis
+
+# サービス別分析のみ
+python3 managers/integrated_data_manager.py service_analysis
+
+# 離脱者アラートのみ
+python3 managers/integrated_data_manager.py churn_alert
+```
+
+### 離脱者サマリー確認
+```bash
+"PYTHONPATH=""/Users/photopriinc/Documents/coding/Shopify\ bulk\ task/レポート"" python3 managers/churn_alert_manager.py summary"
+```
+
+## 10. よくある質問
+
+### Q1: なぜ過去3年間の条件があるのですか？
+A1: より現実的でアクション可能な分析データを提供するためです。
+古い顧客データは現在のマーケティング戦略に直結しないため、
+過去3年間に最終注文がある顧客に絞って分析しています。
+
+### Q2: 離脱者判定はどのように行われますか？
+A2: 各顧客の過去の注文パターン（平均注文間隔）を基にした
+動的リスクスコアで判定されます。固定の日数閾値ではなく、
+顧客ごとの購入習慣を考慮した精密な判定を行います。
+
+### Q3: 長期間の注文スパンを持つ顧客はどう扱われますか？
+A3: 平均注文間隔の1.5倍を超えた時点でリスク開始とし、
+3倍を超えた時点で高リスクと判定します。また、2年以上の
+長期間顧客や10回以上の注文実績がある顧客はリスクスコアを軽減します。
+
+### Q4: データの更新頻度はどのくらいですか？
+A4: 週次更新を推奨しています。統合実行コマンドで
+注文データ、顧客データ、各種分析を一括更新できます。
+
+### Q5: エラーが発生した場合はどうすればよいですか？
+A5: ログファイルを確認してください。
+• integrated_data_manager.log
+• customer_data_manager.log
+• churn_alert_manager.log
+• user_analysis_manager.log
+• service_analysis_manager.log
+
+### Q6: スプレッドシートのURLはどこですか？
+A6: https://docs.google.com/spreadsheets/d/1S_IbeV2syeauIvP5w0uAhBs3t3MaNoczrXLpBMCh54g
+
+### Q7: カスタム分析を追加したい場合はどうすればよいですか？
+A7: 各マネージャークラス（customer_data_manager.py、
+user_analysis_manager.py等）を修正して、新しい分析指標を
+追加できます。詳細は各ファイルのコメントを参照してください。
+
+### Q8: データのバックアップは取られていますか？
+A8: はい、exportsフォルダにCSVファイルとして保存されています。
+• customers_all_YYYYMMDD_HHMMSS.csv
+• orders_all_time_YYYY-MM-DD_to_YYYY-MM-DD_YYYYMMDD_HHMMSS.csv
+• churn_alert_list_YYYYMMDD_HHMMSS.csv
+• user_analysis_top100_YYYYMMDD_HHMMSS.csv
+• service_analysis_{サービス名}_YYYYMMDD_HHMMSS.csv
+
+---
+最終更新日: 2025年10月03日 09:48:08
+システムバージョン: 2.0
+作成者: AI Assistant

@@ -1,0 +1,39 @@
+修正されたServiceData用のQUERY関数（TETTE対応版）
+
+=QUERY(
+{ARRAYFORMULA(EOMONTH(db!P2:P,-1)+1),
+ARRAYFORMULA(IFERROR(REGEXEXTRACT(db!A2:A,"#([PEAQTC])"))),
+db!L2:L,
+db!A2:A,
+db!Q2:Q,
+db!C2:C},
+"SELECT Col1, Col2, SUM(Col3), COUNT(Col4), SUM(Col5)
+WHERE Col1 IS NOT NULL
+AND Col2 IS NOT NULL
+AND Col6 IS NOT NULL
+AND Col6 <> 'VOIDED'
+AND Col6 <> 'REFUNDED'
+AND Col6 <> 'EXPIRED'
+AND Col6 <> 'PENDING'
+AND Col6 <> 'PARTIALLY_PAID'
+AND Col6 <> ''
+AND Col3 IS NOT NULL AND Col3 >= 0
+AND Col5 IS NOT NULL AND Col5 >= 0
+GROUP BY Col1, Col2
+ORDER BY Col1 DESC, Col2 ASC
+LABEL Col1 '年月', Col2 'サービス', SUM(Col3) '売上', COUNT(Col4) '注文件数', SUM(Col5) '注文点数'",
+1
+)
+
+変更点：
+1. REGEXEXTRACTパターンを "#([PEAQTC])" に変更
+   - 括弧でグループ化して、ストアの文字のみを抽出
+   - これにより、#T → T, #P → P, #E → E のように正しく抽出される
+
+各ストアの対応：
+- #P → P (Photopri)
+- #E → E (E1 Print) 
+- #A → A (Artgraph)
+- #Q → Q (Qoo)
+- #T → T (TETTE)
+- #C → C (Copy Center Gallery)

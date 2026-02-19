@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>週次レポートダッシュボード</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            padding: 1.5rem;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-900 font-sans min-h-screen">
+
+    <!-- Login Modal -->
+    <div id="login-modal"
+        class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/95 backdrop-blur-sm">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md mx-4 transform transition-all">
+            <div class="text-center mb-8">
+                <div
+                    class="inline-flex items-center justify-center w-16 h-16 bg-blue-50 text-blue-600 rounded-full mb-4">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04M12 21a9.003 9.003 0 008.367-5.657l-2.071-1.381A7 7 0 0112 18V5.056">
+                        </path>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-900">Weekly Analytics</h2>
+                <p class="text-slate-500 mt-2">ダッシュボードを表示するにはログインしてください</p>
+            </div>
+
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">メールアドレス</label>
+                    <input type="email" id="login-id" required
+                        class="w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
+                        placeholder="example@photopri.com">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">パスワード</label>
+                    <input type="password" id="login-pw" required
+                        class="w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
+                        placeholder="••••••••">
+                </div>
+                <div id="login-error"
+                    class="hidden text-red-500 text-sm font-medium bg-red-50 p-3 rounded-lg flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    ログイン情報が正しくありません
+                </div>
+                <button type="submit"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors shadow-lg shadow-blue-500/30">
+                    ログイン
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard Content (Hidden by default) -->
+    <div id="dashboard-content" class="hidden opacity-0 transition-opacity duration-500 p-6 md:p-12">
+        <div class="max-w-6xl mx-auto space-y-8">
+            <!-- Header -->
+            <header class="flex justify-between items-end border-b border-slate-200 pb-4">
+                <div>
+                    <h1 class="text-3xl font-bold text-slate-900 tracking-tight">週次レポート分析</h1>
+                    <p class="text-slate-500 mt-1 text-sm font-medium" id="report-period">データ読み込み中...</p>
+                </div>
+                <div class="flex flex-col items-end gap-1">
+                    <div class="text-xs text-slate-400 font-mono" id="generated-at"></div>
+                    <button onclick="logout()"
+                        class="text-xs text-red-500 hover:text-red-700 font-medium">ログアウト</button>
+                </div>
+            </header>
+
+            <!-- KPI Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Total Sales -->
+                <div class="card border-l-4 border-blue-500 hover:shadow-lg transition-shadow">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">今月の売上合計</h3>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-4xl font-extrabold text-slate-900" id="total-sales">¥-</span>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <div class="flex justify-between text-sm font-medium">
+                            <span class="text-slate-600">達成率</span>
+                            <span class="text-blue-600" id="achievement-rate">-%</span>
+                        </div>
+                        <div class="w-full bg-slate-100 rounded-full h-2">
+                            <div class="bg-blue-500 h-2 rounded-full transition-all duration-1000" id="progress-bar"
+                                style="width: 0%"></div>
+                        </div>
+                        <div class="flex justify-between text-xs text-slate-400 pt-1">
+                            <span>件数: <span id="total-orders" class="font-medium text-slate-600">-</span></span>
+                            <span>目標: <span id="total-target" class="font-medium text-slate-600">¥-</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weekend Orders -->
+                <div class="card border-l-4 border-amber-500 hover:shadow-lg transition-shadow">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">週末の注文 (金12時-月9時)</h3>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-4xl font-extrabold text-slate-900" id="weekend-sales">¥-</span>
+                    </div>
+                    <div class="mt-4 text-sm text-slate-600">
+                        <p class="flex justify-between mb-1">
+                            <span>注文数</span>
+                            <span class="font-bold text-amber-600" id="weekend-orders">-件</span>
+                        </p>
+                        <p class="flex justify-between">
+                            <span>全体シェア</span>
+                            <span class="font-bold text-amber-600" id="weekend-share">-%</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Top Service -->
+                <div class="card border-l-4 border-emerald-500 hover:shadow-lg transition-shadow">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">トップサービス (売上)</h3>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-4xl font-extrabold text-slate-900" id="top-service-name">-</span>
+                    </div>
+                    <div class="mt-4 text-sm">
+                        <p class="text-emerald-700 font-bold text-lg" id="top-service-amount">¥-</p>
+                        <p class="text-slate-400 text-xs mt-1">※ 全サービス中の最高売上</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Sales by Service (Bar) -->
+                <div class="card col-span-2">
+                    <h3 class="text-lg font-bold text-slate-800 mb-6">サービス別売上 (目標 vs 実績)</h3>
+                    <div class="h-80 w-full">
+                        <canvas id="salesChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Order Share (Doughnut) -->
+                <div class="card col-span-1">
+                    <h3 class="text-lg font-bold text-slate-800 mb-6">注文件数シェア</h3>
+                    <div class="h-64 flex items-center justify-center">
+                        <canvas id="shareChart"></canvas>
+                    </div>
+                    <div class="mt-6 space-y-2 text-sm text-slate-600" id="share-legend">
+                        <!-- Legend auto-generated -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Update Section (Admin Only) -->
+            <div id="admin-section" class="hidden">
+                <div class="card bg-slate-100 border-none shadow-none">
+                    <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-800">システムデータ更新</h3>
+                            <p class="text-xs text-slate-500">Shopifyから最新データを取得しレポートを再生成します（10-20分程度かかります）</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button id="update-btn-no-notify" onclick="triggerUpdate(false)"
+                                class="bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold py-2 px-4 rounded border border-slate-200 transition-all shadow-sm disabled:opacity-50">
+                                通知なしで更新
+                            </button>
+                            <button id="update-btn-notify" onclick="triggerUpdate(true)"
+                                class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-4 rounded transition-all shadow-sm disabled:opacity-50">
+                                Lark通知を送る
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Status Display -->
+                    <div id="update-status-container"
+                        class="hidden mt-4 p-4 bg-white rounded-lg border border-slate-200">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-bold text-slate-700" id="update-status-msg">処理を開始しています...</span>
+                            <span class="text-xs font-mono text-slate-400" id="update-progress-val">0%</span>
+                        </div>
+                        <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                            <div id="update-progress-bar" class="bg-blue-500 h-full transition-all duration-500"
+                                style="width: 0%"></div>
+                        </div>
+                        <p id="update-detail-msg" class="text-[10px] text-slate-400 mt-2 italic text-center">
+                            このページを閉じてもサーバー側で処理は継続されます。</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Raw Data Link -->
+            <div class="text-center pt-8 border-t border-slate-200 mt-8">
+                <p class="text-xs text-slate-400 mb-2">データソース: weekly_report_system.py</p>
+                <a href="../data/weekly_summary_latest.json" target="_blank"
+                    class="inline-flex items-center text-sm font-medium text-blue-500 hover:text-blue-700 hover:underline transition-colors">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                    </svg>
+                    JSON生データを確認する
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Import -->
+    <script src="../data/weekly_summary_data.js"></script>
+
+    <script>
+        // Init Chart.js defaults
+        Chart.defaults.font.family = "'Inter', system-ui, -apple-system, sans-serif";
+        Chart.defaults.color = '#64748b';
+
+        // Firebase Configuration (To be filled by user or generated)
+        const firebaseConfig = {
+            apiKey: "AIzaSyAcMhx7DScxBRe6TKW5f4jRn79WICV8S5A",
+            authDomain: "photopri-inc-report.firebaseapp.com",
+            projectId: "photopri-inc-report",
+            storageBucket: "photopri-inc-report.firebasestorage.app",
+            messagingSenderId: "199163109979",
+            appId: "1:199163109979:web:b901919fc5f9355141957e",
+            measurementId: "G-R7F6W154F8"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        const loginForm = document.getElementById('login-form');
+        const loginModal = document.getElementById('login-modal');
+        const dashboardContent = document.getElementById('dashboard-content');
+        const errorMsg = document.getElementById('login-error');
+
+        function checkAuth() {
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    showDashboard();
+                } else {
+                    hideDashboard();
+                }
+            });
+        }
+
+        function showDashboard() {
+            loginModal.classList.add('hidden');
+            dashboardContent.classList.remove('hidden');
+            setTimeout(() => dashboardContent.classList.add('opacity-100'), 50);
+
+            // Show admin section if authorized
+            auth.currentUser.getIdTokenResult().then((idTokenResult) => {
+                if (idTokenResult.claims.admin) {
+                    document.getElementById('admin-section').classList.remove('hidden');
+                }
+            });
+
+            initDashboard();
+            listenToUpdateStatus(); // Firestoreでリアルタイム監視
+        }
+
+        function hideDashboard() {
+            loginModal.classList.remove('hidden');
+            dashboardContent.classList.add('hidden');
+        }
+
+        function logout() {
+            auth.signOut().then(() => {
+                location.reload();
+            });
+        }
+
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-id').value;
+            const pw = document.getElementById('login-pw').value;
+
+            auth.signInWithEmailAndPassword(email, pw).catch((error) => {
+                errorMsg.classList.remove('hidden');
+                errorMsg.textContent = "ログインに失敗しました: " + error.message;
+            });
+        });
+
+        // Update Trigger
+        async function triggerUpdate(notify) {
+            if (!confirm(`データ更新処理を開始します。約10〜20分かかりますが、サーバー側で実行されるためページは閉じても大丈夫です。\n\n通知: ${notify ? 'あり' : 'なし'}\n実行しますか？`)) return;
+
+            const btns = [document.getElementById('update-btn-no-notify'), document.getElementById('update-btn-notify')];
+            btns.forEach(b => b.disabled = true);
+
+            try {
+                // Cloud Runのエンドポイントを呼び出す
+                const cloudRunUrl = 'YOUR_CLOUD_RUN_URL/run_update?notify=' + notify;
+                const token = await auth.currentUser.getIdToken();
+
+                const response = await fetch(cloudRunUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                });
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    document.getElementById('update-status-container').classList.remove('hidden');
+                } else {
+                    alert('エラー: ' + result.message);
+                    btns.forEach(b => b.disabled = false);
+                }
+            } catch (err) {
+                alert('通信エラーが発生しました。');
+                btns.forEach(b => b.disabled = false);
+            }
+        }
+
+        function listenToUpdateStatus() {
+            // Firestoreのリアルタイムアップデートを監視
+            db.collection('system_status').document('weekly_report')
+                .onSnapshot((doc) => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        const container = document.getElementById('update-status-container');
+                        const msg = document.getElementById('update-status-msg');
+                        const progBar = document.getElementById('update-progress-bar');
+                        const progVal = document.getElementById('update-progress-val');
+                        const btns = [document.getElementById('update-btn-no-notify'), document.getElementById('update-btn-notify')];
+
+                        if (data.status === 'running') {
+                            container.classList.remove('hidden');
+                            btns.forEach(b => b.disabled = true);
+                            msg.textContent = data.message;
+                            progBar.style.width = data.progress + '%';
+                            progVal.textContent = data.progress + '%';
+                            progBar.classList.remove('bg-emerald-500');
+                            progBar.classList.add('bg-blue-500');
+                        } else if (data.status === 'success') {
+                            msg.textContent = '更新が完了しました！';
+                            progBar.style.width = '100%';
+                            progVal.textContent = '100%';
+                            progBar.classList.replace('bg-blue-500', 'bg-emerald-500');
+                            btns.forEach(b => b.disabled = false);
+                        } else if (data.status === 'error') {
+                            msg.textContent = 'エラー: ' + data.message;
+                            msg.classList.add('text-red-500');
+                            btns.forEach(b => b.disabled = false);
+                        }
+                    }
+                });
+        }
+
+        // Dashboard Init
+        function initDashboard() {
+            if (typeof weeklySummaryData === 'undefined') {
+                console.error('Data not found');
+                return;
+            }
+
+            const data = weeklySummaryData;
+
+            // Formatters
+            const fmtCurrency = (num) => '¥' + Math.floor(num).toLocaleString();
+            const fmtPercent = (num) => num.toFixed(1) + '%';
+
+            // Determine Services
+            const services = ['#A', '#P', '#E', '#Q'];
+
+            // 1. Header Info
+            document.getElementById('report-period').textContent = `${data.year}年${data.month}月度 レポート`;
+            document.getElementById('generated-at').textContent = 'Last Updated: ' + new Date(data.generated_at).toLocaleString('ja-JP');
+
+            // 2. KPIS
+            const mSales = data.monthly_sales.total || { amount: 0, orders: 0 };
+            const mTarget = data.monthly_targets.total || 0;
+            const mRate = mTarget > 0 ? (mSales.amount / mTarget * 100) : 0;
+
+            document.getElementById('total-sales').textContent = fmtCurrency(mSales.amount);
+            document.getElementById('total-orders').textContent = mSales.orders.toLocaleString() + '件';
+            document.getElementById('total-target').textContent = fmtCurrency(mTarget);
+            document.getElementById('achievement-rate').textContent = fmtPercent(mRate);
+            document.getElementById('progress-bar').style.width = Math.min(mRate, 100) + '%';
+
+            const wSales = data.weekend_orders.total || { amount: 0, orders: 0 };
+            const mAmount = mSales.amount || 0;
+            const wShare = mAmount > 0 ? (wSales.amount / mAmount * 100) : 0;
+
+            document.getElementById('weekend-sales').textContent = fmtCurrency(wSales.amount);
+            document.getElementById('weekend-orders').textContent = wSales.orders + '件';
+            document.getElementById('weekend-share').textContent = fmtPercent(wShare);
+
+            let topS = { name: '-', amount: 0 };
+            services.forEach(s => {
+                const amt = data.monthly_sales[s]?.amount || 0;
+                if (amt > topS.amount) {
+                    topS = { name: s, amount: amt };
+                }
+            });
+            document.getElementById('top-service-name').textContent = topS.name;
+            document.getElementById('top-service-amount').textContent = fmtCurrency(topS.amount);
+
+            // 3. Charts
+            const salesData = services.map(s => data.monthly_sales[s]?.amount || 0);
+            const targetData = services.map(s => data.monthly_targets[s] || 0);
+            const orderData = services.map(s => data.monthly_sales[s]?.orders || 0);
+
+            new Chart(document.getElementById('salesChart'), {
+                type: 'bar',
+                data: {
+                    labels: services,
+                    datasets: [
+                        { label: '実績売上', data: salesData, backgroundColor: '#3b82f6', borderRadius: 6 },
+                        { label: '目標売上', data: targetData, backgroundColor: '#e2e8f0', borderRadius: 6 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'top', align: 'end' } },
+                    scales: {
+                        y: { ticks: { callback: (val) => '¥' + val.toLocaleString() } }
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('shareChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: services,
+                    datasets: [{
+                        data: orderData,
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#6366f1']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'right' } },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        checkAuth();
+    </script>
+</body>
+
+</html>
