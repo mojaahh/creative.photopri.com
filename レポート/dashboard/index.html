@@ -262,12 +262,10 @@
             dashboardContent.classList.remove('hidden');
             setTimeout(() => dashboardContent.classList.add('opacity-100'), 50);
 
-            // Show admin section if authorized
-            auth.currentUser.getIdTokenResult().then((idTokenResult) => {
-                if (idTokenResult.claims.admin) {
-                    document.getElementById('admin-section').classList.remove('hidden');
-                }
-            });
+            // Show admin section if authorized (matsumura@photopri.com is admin)
+            if (auth.currentUser.email === 'matsumura@photopri.com') {
+                document.getElementById('admin-section').classList.remove('hidden');
+            }
 
             initDashboard();
             listenToUpdateStatus(); // Firestoreでリアルタイム監視
