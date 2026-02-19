@@ -304,13 +304,14 @@
 
             try {
                 // Cloud Runのエンドポイントを呼び出す
-                const cloudRunUrl = 'YOUR_CLOUD_RUN_URL/run_update?notify=' + notify;
+                const cloudRunUrl = 'https://weekly-report-api-199163109979.asia-northeast1.run.app/run_update?notify=' + notify;
                 const token = await auth.currentUser.getIdToken();
 
                 const response = await fetch(cloudRunUrl, {
                     method: 'POST',
                     headers: {
-                        'Authorization': 'Bearer ' + token
+                        'Authorization': 'Bearer ' + token,
+                        'X-API-Key': 'c828152947a894680b173e635e4ec694' // Python側の簡易認証用
                     }
                 });
                 const result = await response.json();
