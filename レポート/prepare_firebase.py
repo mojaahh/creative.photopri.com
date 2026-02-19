@@ -40,6 +40,14 @@ def prepare_deployment():
     if (project_root / 'credentials.json').exists():
         shutil.copy2(project_root / 'credentials.json', dist_api / 'credentials.json')
 
+    # APIのコアファイルをコピー
+    api_source = project_root / 'レポート' / 'api_source'
+    if api_source.exists():
+        for f in ['main.py', 'requirements.txt', 'Dockerfile']:
+            if (api_source / f).exists():
+                shutil.copy2(api_source / f, dist_api / f)
+                print(f"  Copied {f} to API folder")
+
     print("\n✨ Preparation complete!")
     print("\n--- Next Steps ---")
     print("1. Install Firebase CLI: npm install -g firebase-tools")
